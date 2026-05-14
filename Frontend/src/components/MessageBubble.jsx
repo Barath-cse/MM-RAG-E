@@ -4,17 +4,17 @@ import { User, Bot, FileText, Image as ImageIcon, Music, ChevronDown, ChevronUp,
 /* ── Source Badge ──────────────────────────────────────────────────────── */
 const SourceBadge = ({ src }) => {
   const [expanded, setExpanded] = useState(false);
-  const score    = src.score ? (src.score * 100).toFixed(0) : 0;
+  const score = src.score ? (src.score * 100).toFixed(0) : 0;
   const scoreNum = Number(score);
   const scoreClass = scoreNum > 80 ? 'score-high' : scoreNum > 60 ? 'score-medium' : 'score-low';
 
   const typeColor =
     src.metadata?.type === 'image' ? '#f472b6' :
-    src.metadata?.type === 'audio' ? '#fbbf24' : '#22d3ee';
+      src.metadata?.type === 'audio' ? '#fbbf24' : '#22d3ee';
 
   const TypeIcon =
     src.metadata?.type === 'image' ? ImageIcon :
-    src.metadata?.type === 'audio' ? Music      : FileText;
+      src.metadata?.type === 'audio' ? Music : FileText;
 
   return (
     <div
@@ -50,7 +50,7 @@ const SourceBadge = ({ src }) => {
           </div>
         </div>
         {expanded
-          ? <ChevronUp  style={{ width: 12, height: 12, color: 'rgba(255,255,255,0.35)', flexShrink: 0 }} />
+          ? <ChevronUp style={{ width: 12, height: 12, color: 'rgba(255,255,255,0.35)', flexShrink: 0 }} />
           : <ChevronDown style={{ width: 12, height: 12, color: 'rgba(255,255,255,0.35)', flexShrink: 0 }} />}
       </div>
 
@@ -75,8 +75,8 @@ const SourceBadge = ({ src }) => {
 const StatsBar = ({ stats }) => (
   <div className="flex items-center gap-3 flex-wrap mt-1">
     {[
-      { label: `${stats.searchLatencyMs}ms search`,     icon: Clock  },
-      { label: `${stats.generationLatencyMs}ms gen`,    icon: Clock  },
+      { label: `${stats.searchLatencyMs}ms search`, icon: Clock },
+      { label: `${stats.generationLatencyMs}ms gen`, icon: Clock },
       { label: `${stats.vectorCount} chunk${stats.vectorCount !== 1 ? 's' : ''}`, icon: Layers },
     ].map(({ label, icon: Icon }) => (
       <span
@@ -99,7 +99,7 @@ const StatsBar = ({ stats }) => (
 
 /* ── Message Bubble ────────────────────────────────────────────────────── */
 const MessageBubble = ({ message, onSuggestionClick }) => {
-  const isUser  = message.role === 'user';
+  const isUser = message.role === 'user';
   const isError = message.type === 'error';
 
   return (
@@ -112,15 +112,15 @@ const MessageBubble = ({ message, onSuggestionClick }) => {
           style={isUser
             ? { background: 'linear-gradient(135deg,#6366f1,#8b5cf6)', boxShadow: '0 0 14px rgba(99,102,241,0.45)' }
             : isError
-            ? { background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)' }
-            : { background: 'rgba(139,92,246,0.15)', border: '1px solid rgba(139,92,246,0.3)', boxShadow: '0 0 10px rgba(139,92,246,0.2)' }
+              ? { background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)' }
+              : { background: 'rgba(139,92,246,0.15)', border: '1px solid rgba(139,92,246,0.3)', boxShadow: '0 0 10px rgba(139,92,246,0.2)' }
           }
         >
           {isUser
-            ? <User    style={{ width: 14, height: 14, color: 'white' }} />
+            ? <User style={{ width: 14, height: 14, color: 'white' }} />
             : isError
-            ? <AlertTriangle style={{ width: 14, height: 14, color: '#f87171' }} />
-            : <Sparkles style={{ width: 14, height: 14, color: '#a78bfa' }} />
+              ? <AlertTriangle style={{ width: 14, height: 14, color: '#f87171' }} />
+              : <Sparkles style={{ width: 14, height: 14, color: '#a78bfa' }} />
           }
         </div>
 
@@ -129,25 +129,24 @@ const MessageBubble = ({ message, onSuggestionClick }) => {
           className="relative px-4 py-3.5"
           style={isUser
             ? {
-                background: 'linear-gradient(135deg, #4f46e5, #7c3aed)',
-                borderRadius: '18px 4px 18px 18px',
-                boxShadow: '0 4px 24px rgba(99,102,241,0.35)',
-                color: 'rgba(255,255,255,0.95)',
-              }
+              background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.15))',
+              border: '1px solid rgba(99, 102, 241, 0.25)',
+              borderRadius: '16px 16px 4px 16px',
+              color: 'rgba(255,255,255,0.95)',
+            }
             : isError
-            ? {
-                background: 'rgba(239,68,68,0.1)',
-                border: '1px solid rgba(239,68,68,0.25)',
-                borderRadius: '4px 18px 18px 18px',
+              ? {
+                background: 'rgba(239, 68, 68, 0.1)',
+                border: '1px solid rgba(239, 68, 68, 0.25)',
+                borderRadius: '16px',
                 color: '#fca5a5',
               }
-            : {
-                background: 'rgba(255,255,255,0.05)',
+              : {
+                background: 'rgba(255, 255, 255, 0.03)',
                 backdropFilter: 'blur(12px)',
                 WebkitBackdropFilter: 'blur(12px)',
-                border: '1px solid rgba(255,255,255,0.09)',
-                borderLeft: '2px solid rgba(99,102,241,0.5)',
-                borderRadius: '4px 18px 18px 18px',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                borderRadius: '16px',
                 color: 'rgba(255,255,255,0.88)',
               }
           }

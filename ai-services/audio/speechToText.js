@@ -26,7 +26,7 @@ class AudioService {
     const audioBase64 = audioBuffer.toString('base64');
     const resolvedMime = this._getMimeType(filePath, mimeType);
 
-    const model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = this.genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
     const result = await model.generateContent([
       'Transcribe this audio strictly verbatim. Do not add any extra text, commentary, or formatting.',
       {

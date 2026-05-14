@@ -28,24 +28,27 @@ Because the system supports **voice queries**, workers in the field (e.g., mecha
 ## 2. Architecture & Working Flow
 
 ### A. The Data Ingestion Flow (Upload)
-When a user drags and drops a file via the Frontend dashboard:
+When a user uploads a file via the unified Chat Dashboard:
 1. **Routing:** The file hits `Backend/routes/uploadRoutes.js`.
 2. **Pipeline Processing:** The file is handed off to `ai-services/pipeline/ingestionPipeline.js`.
 3. **Modality Parsing:**
-   - **Documents (.pdf, .docx):** Parsed using libraries like `pdf-parse` and `mammoth` into raw text.
-   - **Images:** Converted to base64 and sent to the LLM (Google Gemini / Gemma) to generate a detailed textual description of the image.
-   - **Audio:** Processed through Speech-to-Text services (like Whisper) to generate text transcripts.
-4. **Chunking & Embedding:** The extracted text is chopped down into smaller pieces (chunks) using `textChunker`. Each chunk is passed to `embeddingService.js`, which queries the `gemini-embedding-001` model to create a 768-dimension mathematical coordinate (vector) representing the semantic meaning of the text.
-5. **Storage:** The chunks, metadata, and vectors are saved directly to the high-speed local database via `endeeService.js`.
+   - **Documents (.pdf, .docx, .txt, .md):** Parsed using `pdf-parse`, `mammoth`, and native filesystem readers.
+   - **Spreadsheets & Presentations (.xlsx, .pptx):** Handled via `xlsx` and `officeparser` for robust data extraction.
+   - **Images:** Converted to base64 and sent to **Gemini 2.5 Flash** to generate a detailed textual description.
+   - **Audio:** Processed through **Gemini 2.5 Flash** for verbatim transcription.
+4. **Chunking & Embedding:** The extracted text is chopped into overlapping pieces (chunks) using `textChunker`. Each chunk is passed to `embeddingService.js`, which queries the `gemini-embedding-001` model to create a 768-dimension vector.
+5. **Storage:** The chunks, metadata, and vectors are saved directly to the high-speed local database via `endeeService.js` (persisted to `data/vectors.json`).
+6. **Cancellation (New):** The system supports high-fidelity cancellation. If a user aborts an upload, both the frontend connection and the backend ingestion pipeline (the embedding loop) are immediately terminated to conserve API quota and system resources.
 
 ### B. The Query Flow (Chatting)
 When a user asks a question:
 1. **Routing:** Hits `Backend/routes/queryRoutes.js`.
 2. **Query Pipeline:** `ai-services/pipeline/queryPipeline.js` takes over.
-3. **Question Embedding:** The user's question itself is converted into a vector coordinate.
-4. **Context Retrieval:** The `endeeService.js` conducts a pure Cosine Similarity search matching the question's coordinates against all stored chunks in the vector DB. The top most relevant chunks are retrieved.
-5. **Synthesis:** The retrieved chunks are given to the Generative LLM (`gemma-3-4b-it`) as context. The LLM reads the context and drafts a human-readable answer.
-6. **Response Delivery:** The Frontend receives the synthesized answer alongside the cited source IDs and renders them beautifully.
+3. **Question Embedding:** The user's question is converted into a 768-dimension vector.
+4. **Context Retrieval:** `endeeService.js` performs a Cosine Similarity search against stored chunks.
+5. **Synthesis:** Retrieved chunks are provided to **Gemini 2.5 Flash** as context. The model generates a human-readable answer with inline citations.
+6. **Interaction:** Clickable follow-up suggestions are extracted and displayed in the UI for rapid iteration.
+7. **Response Delivery:** The Frontend renders the synthesized answer and source metadata beautifully.
 
 ---
 
@@ -64,12 +67,12 @@ When a user asks a question:
 - **Cors, Express Router, Multer:** Core routing and file upload handling middlewares.
 
 ### AI & Pipeline Services Layer
-- **Google Generative AI SDK (`@google/generative-ai`):** Powers the core intelligence of the application.
-  - Generates embeddings (`gemini-embedding-001`).
-  - Synthesizes answers and describes images (`gemma-3-4b-it` or `gemini-1.5-flash`).
+- **Google Generative AI SDK (`@google/generative-ai`):** Powers the core intelligence.
+  - **Embeddings:** `gemini-embedding-001` (768-Dim).
+  - **Generation & Vision:** `gemini-2.5-flash` for answers, image descriptions, and audio transcription.
 - **Endee Engine (`endeeService.js`):** 
-  - *Context:* Endee is a high speed vector database. To ensure cross-platform compatibility on Windows without needing external native C++ servers or Docker pipelines, the service was elegantly refactored to an **Embedded JSON Vector Service**. It holds vectors in local memory, calculates Cosine Similarity math on the fly, and snapshots data persistency to `data/vectors.json`.
-- **Text & Doc Parsers (`pdf-parse`, `mammoth`):** Responsible for shredding proprietary document formats into readable string outputs.
+  - *Context:* High-speed embedded vector database. Refactored to an **Embedded JSON Vector Service** for native Windows compatibility. It calculates Cosine Similarity in-memory and persists indices to `data/vectors.json`.
+- **Text & Doc Parsers (`pdf-parse`, `mammoth`, `xlsx`, `officeparser`):** Handles PDF, DOCX, Excel, CSV, and PPT formats.
 
 ---
 
@@ -110,9 +113,9 @@ MM-RAG-E/
 ---
 
 ## 5. Summary / Quick Commands
-- **Initialization:** `npm install` inside the root and `Frontend` directories.
-- **Running:** The command `npm run dev` kicks off the `concurrently` package, launching both the Vite frontend and standard Node backend monitor (`nodemon`) natively within one terminal. 
-- **Extending the Project:** If you ever outgrow the embedded `vectors.json` database or the `gemma-3-4b-it` LLM, simply modify the variables inside `Backend/services/endeeService.js` and `ai-services/pipeline/queryPipeline.js` to target a dedicated hosted environment.
+- **Initialization:** `npm run install:all` at the root directory.
+- **Running:** Use `npm run dev` to launch the concurrent Frontend (Vite) and Backend (Nodemon) workspace.
+- **Extending the Project:** The system is modular—swap `endeeService.js` logic for a cloud vector DB or update model strings in `queryPipeline.js` to target future Gemini versions.
 
 ---
 

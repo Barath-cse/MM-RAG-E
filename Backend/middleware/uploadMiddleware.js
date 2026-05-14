@@ -6,7 +6,14 @@ const ALLOWED_MIME_TYPES = new Set([
   // Documents
   'application/pdf',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  'application/msword',
+  'application/vnd.ms-excel',
+  'application/vnd.ms-powerpoint',
   'text/plain',
+  'text/markdown',
+  'text/csv',
   // Images
   'image/jpeg',
   'image/png',
@@ -21,25 +28,30 @@ const ALLOWED_MIME_TYPES = new Set([
   'audio/x-wav',
 ]);
 
+// Max file size: 25 MB (kept consistent with error message in errorHandler)
+const MAX_FILE_SIZE_BYTES = 25 * 1024 * 1024;
+
 const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
+  destination(req, file, cb) {
     const dir = process.env.UPLOAD_DIR || './data/uploads';
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     }
     cb(null, dir);
   },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+  filename(req, file, cb) {
+    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
     cb(null, uniqueSuffix + path.extname(file.originalname));
-  }
+  },
 });
 
 const fileFilter = (req, file, cb) => {
   if (ALLOWED_MIME_TYPES.has(file.mimetype)) {
     cb(null, true);
   } else {
-    const err = new Error(`Unsupported file type: ${file.mimetype}. Allowed: PDF, DOCX, TXT, Images, Audio.`);
+    const err = new Error(
+      `Unsupported file type: ${file.mimetype}. Allowed: PDF, DOCX, XLSX, PPTX, TXT, CSV, Images, Audio.`
+    );
     err.statusCode = 415;
     cb(err, false);
   }
@@ -48,7 +60,7 @@ const fileFilter = (req, file, cb) => {
 const upload = multer({
   storage,
   fileFilter,
-  limits: { fileSize: 25 * 1024 * 1024 }, // 25MB limit (was 10MB — audio/images can be larger)
+  limits: { fileSize: MAX_FILE_SIZE_BYTES },
 });
 
 module.exports = upload;

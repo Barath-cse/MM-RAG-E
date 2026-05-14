@@ -13,6 +13,17 @@ const errorHandler = (err, req, res, next) => {
     });
   }
 
+  // Handle user-initiated cancellations gracefully
+  if (err.name === 'AbortError' || err.message === 'Ingestion cancelled by user') {
+    if (!res.writableEnded) {
+      return res.status(499).json({ // 499 is Client Closed Request
+        success: false,
+        error: 'Request cancelled by user'
+      });
+    }
+    return;
+  }
+
   const status = err.statusCode || err.status || 500;
   const message = err.message || 'Internal Server Error';
 

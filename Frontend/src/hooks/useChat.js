@@ -27,9 +27,23 @@ const loadSessions = () => {
 export const useChat = () => {
   const [sessions, setSessions] = useState(() => {
     const loaded = loadSessions() ?? [];
-    if (loaded.length === 0 || loaded[0].messages.length > 0) {
+    if (loaded.length === 0) {
       const fresh = makeSession();
-      return [fresh, ...loaded].slice(0, MAX_SESSIONS);
+      return [fresh];
+    }
+
+    // Distinguish between 'Open' and 'Refresh'
+    // sessionStorage persists across refreshes but not across tab closures.
+    const SESSION_STARTED = 'mm-rag-session-started';
+    const isSessionStarted = sessionStorage.getItem(SESSION_STARTED);
+
+    if (!isSessionStarted) {
+      sessionStorage.setItem(SESSION_STARTED, 'true');
+      // Create a new session on fresh open if the most recent one isn't empty
+      if (loaded[0].messages.length > 0) {
+        const fresh = makeSession();
+        return [fresh, ...loaded].slice(0, MAX_SESSIONS);
+      }
     }
     return loaded;
   });

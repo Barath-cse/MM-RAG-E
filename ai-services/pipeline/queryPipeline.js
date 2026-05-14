@@ -47,7 +47,7 @@ After your answer, provide exactly 3 relevant follow-up questions the user might
 
     // 4. Generate answer
     const genStart = Date.now();
-    const model = this.genAI.getGenerativeModel({ model: 'gemma-3-4b-it' });
+    const model = this.genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
     const result = await model.generateContent(this._buildPrompt(userInput, context));
     const rawText = result.response.text();
     const generationLatency = Date.now() - genStart;

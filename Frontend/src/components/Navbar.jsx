@@ -6,9 +6,9 @@ import Modal from './Modal';
 
 /* ── Stats modal content ───────────────────────────────────────────────── */
 const StatsContent = () => {
-  const [stats,   setStats]   = useState(null);
+  const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error,   setError]   = useState(null);
+  const [error, setError] = useState(null);
 
   const fetchStats = useCallback(async () => {
     setLoading(true); setError(null);
@@ -41,9 +41,9 @@ const StatsContent = () => {
   return (
     <div className="space-y-3">
       {[
-        { icon: Database,  color: '#6366f1', glow: 'rgba(99,102,241,0.3)',  label: 'Total Vectors',     value: stats?.vectorCount  ?? 0      },
-        { icon: Cpu,       color: '#8b5cf6', glow: 'rgba(139,92,246,0.3)',  label: 'Vector Dimensions', value: stats?.dimension    ?? 768    },
-        { icon: HardDrive, color: '#22d3ee', glow: 'rgba(34,211,238,0.25)', label: 'Storage Used',      value: `${sizeKb} KB`               },
+        { icon: Database, color: '#6366f1', glow: 'rgba(99,102,241,0.3)', label: 'Total Vectors', value: stats?.vectorCount ?? 0 },
+        { icon: Cpu, color: '#8b5cf6', glow: 'rgba(139,92,246,0.3)', label: 'Vector Dimensions', value: stats?.dimension ?? 768 },
+        { icon: HardDrive, color: '#22d3ee', glow: 'rgba(34,211,238,0.25)', label: 'Storage Used', value: `${sizeKb} KB` },
       ].map(({ icon: Icon, color, glow, label, value }) => (
         <div
           key={label}
@@ -81,13 +81,13 @@ const StatsContent = () => {
 const ConfigContent = () => (
   <div className="space-y-3">
     {[
-      { label: 'Embedding Engine',    value: 'gemini-embedding-001'        },
-      { label: 'Generation Model',    value: 'gemma-3-4b-it'              },
-      { label: 'Vision Model',        value: 'gemma-3-4b-it (multimodal)' },
-      { label: 'Audio Transcription', value: 'gemini-1.5-flash'           },
-      { label: 'Retrieval Strategy',  value: 'Top-5 Cosine Similarity'    },
-      { label: 'Vector Storage',      value: 'Local JSON (Endee-compatible)'},
-      { label: 'Chunk Size',          value: '1000 chars / 200 overlap'   },
+      { label: 'Embedding Engine', value: 'gemini-embedding-001' },
+      { label: 'Generation Model', value: 'gemma-3-4b-it' },
+      { label: 'Vision Model', value: 'gemma-3-4b-it (multimodal)' },
+      { label: 'Audio Transcription', value: 'gemini-1.5-flash' },
+      { label: 'Retrieval Strategy', value: 'Top-5 Cosine Similarity' },
+      { label: 'Vector Storage', value: 'Local JSON (Endee-compatible)' },
+      { label: 'Chunk Size', value: '1000 chars / 200 overlap' },
     ].map(({ label, value }) => (
       <div key={label} className="space-y-0.5">
         <label className="text-[10px] font-dm font-bold uppercase tracking-wider" style={{ color: 'rgba(255,255,255,0.3)' }}>{label}</label>
@@ -101,11 +101,11 @@ const ConfigContent = () => (
 
 /* ── Navbar ────────────────────────────────────────────────────────────── */
 const Navbar = () => {
-  const [clearing,        setClearing]        = useState(false);
-  const [showStats,       setShowStats]       = useState(false);
-  const [showConfig,      setShowConfig]      = useState(false);
-  const [showClearConfirm,setShowClearConfirm]= useState(false);
-  const [clearError,      setClearError]      = useState(null);
+  const [clearing, setClearing] = useState(false);
+  const [showStats, setShowStats] = useState(false);
+  const [showConfig, setShowConfig] = useState(false);
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [clearError, setClearError] = useState(null);
   const location = useLocation();
 
   const performClear = async () => {
@@ -121,14 +121,14 @@ const Navbar = () => {
   };
 
   const tabs = [
-    { to: '/',          label: 'Index',     icon: LayoutGrid    },
+    { to: '/', label: 'Index', icon: LayoutGrid },
     { to: '/dashboard', label: 'Assistant', icon: MessageSquare },
   ];
 
   const iconBtns = [
-    { label: 'System Stats',  icon: Zap,                         onClick: () => setShowStats(true)       },
-    { label: 'Config',        icon: Settings,                    onClick: () => setShowConfig(true)      },
-    { label: 'Clear DB',      icon: clearing ? Loader2 : Trash2, onClick: () => setShowClearConfirm(true), danger: true, spin: clearing },
+    { label: 'System Stats', icon: Zap, onClick: () => setShowStats(true) },
+    { label: 'Config', icon: Settings, onClick: () => setShowConfig(true) },
+    { label: 'Clear DB', icon: clearing ? Loader2 : Trash2, onClick: () => setShowClearConfirm(true), danger: true, spin: clearing },
   ];
 
   return (
@@ -241,8 +241,8 @@ const Navbar = () => {
         </div>
       )}
 
-      <Modal isOpen={showStats}       onClose={() => setShowStats(false)}       title="System Diagnostics">       <StatsContent /> </Modal>
-      <Modal isOpen={showConfig}      onClose={() => setShowConfig(false)}      title="Pipeline Configuration">   <ConfigContent /> </Modal>
+      <Modal isOpen={showStats} onClose={() => setShowStats(false)} title="System Diagnostics">       <StatsContent /> </Modal>
+      <Modal isOpen={showConfig} onClose={() => setShowConfig(false)} title="Pipeline Configuration">   <ConfigContent /> </Modal>
       <Modal isOpen={showClearConfirm} onClose={() => setShowClearConfirm(false)} title="Clear Knowledge Base">
         <div className="space-y-4">
           <p className="text-sm font-dm leading-relaxed" style={{ color: 'rgba(255,255,255,0.6)' }}>

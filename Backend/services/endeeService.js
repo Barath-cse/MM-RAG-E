@@ -38,7 +38,7 @@ class EmbeddedVectorService {
     }, 300);
   }
 
-  async ensureIndex(dimension = 768) {
+  async ensureIndex(dimension = 3072) {
     console.log(`[VectorStore] Index "${this.indexName}" ready (dim=${dimension})`);
   }
 
@@ -99,10 +99,38 @@ class EmbeddedVectorService {
   async getStats() {
     return {
       vectorCount: this.cache.length,
-      dimension: 768,
+      dimension: 3072,
       storageSizeBytes: Buffer.byteLength(JSON.stringify(this.cache)),
       indexName: this.indexName
     };
+  }
+
+  async getDocuments() {
+    const docs = new Map();
+    this.cache.forEach(item => {
+      const meta = item.meta || item.metadata || {};
+      if (meta.originalName) {
+        if (!docs.has(meta.originalName)) {
+          docs.set(meta.originalName, {
+            name: meta.originalName,
+            type: meta.type || 'document',
+            uploadDate: meta.uploadDate,
+            chunkCount: 0
+          });
+        }
+        docs.get(meta.originalName).chunkCount++;
+      }
+    });
+    return Array.from(docs.values()).sort((a, b) => new Date(b.uploadDate) - new Date(a.uploadDate));
+  }
+
+  async deleteDocument(filename) {
+    this.cache = this.cache.filter(item => {
+      const meta = item.meta || item.metadata || {};
+      return meta.originalName !== filename;
+    });
+    this._scheduleSave();
+    return true;
   }
 }
 

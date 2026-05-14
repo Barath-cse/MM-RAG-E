@@ -10,8 +10,8 @@ const app = express();
 
 // Middleware
 app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '100mb' }));
+app.use(express.urlencoded({ extended: true, limit: '100mb' }));
 
 // Static files for uploads preview
 app.use('/uploads', express.static(path.join(__dirname, '../data/uploads')));
